@@ -3,6 +3,7 @@ import matplotlib.patches as mplpatches
 import numpy as np
 import pandas as pd
 import argparse
+import fictrac_processing as fictrac
 
 
 def createPanel(x, y, width, height, figureWidth, figureHeight):
@@ -11,20 +12,6 @@ def createPanel(x, y, width, height, figureWidth, figureHeight):
     width, and height are normalized to the figure's width and height
     """
     return plt.axes([x, y ,width/figureWidth, height/figureHeight])
-
-def loadFictracDat(datfile):
-    """Given a fictrac .dat file, return a dataframe of the data"""
-    colNames = ['cnt', 
-                'dr_cam_x', 'dr_cam_y', 'dr_cam_z', 'dr_cam_err',
-                'dr_lab_x', 'dr_lab_y', 'dr_lab_z',
-                'r_cam_x', 'r_cam_y', 'r_cam_z',
-                'r_lab_x', 'r_lab_y', 'r_lab_z',
-                'posx', 'posy', 'heading',
-                'step_dir', 'step_mag',
-                'intx', 'inty',
-                'ts', 'seq', 'dts', 'ms']
-    ficDat = pd.read_csv(datfile, names=colNames, header=None)
-    return ficDat
 
 def getStripAngle(curtime):
     """Assumes angle of fly stripes based on time since start of script"""
@@ -47,7 +34,7 @@ def main():
     fig, axs = plt.subplots(3, 3, figsize=(figureWidth, figureHeight), constrained_layout=True, sharex='row', sharey='row')
 
     # Parse fictrac data file
-    ficDat = loadFictracDat(infile)
+    ficDat = fictrac.loadFictracDat(infile)
 
     view = 'r_cam'
 
