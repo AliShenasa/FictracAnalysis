@@ -28,7 +28,7 @@ def isScanning(volts):
     threshold = 2.5
     return volts > threshold
 
-def getPartialScanPeriods(ficData, length=None):
+def getPartialScanPeriods(ficDat, length=None):
     """
     Given a dataframe of fictrac data with scan info
     Return list of scan periods
@@ -36,17 +36,17 @@ def getPartialScanPeriods(ficData, length=None):
     """
 
     if length is None: # Set length to process as entire range if none given
-        length = len(ficData)
+        length = len(ficDat)
     
     scanArray = np.empty(0)
-    prevState = isScanning(ficData.iloc[0]['scanvolts'])
-    startFrame = ficData.iloc[0]['cnt']
+    prevState = isScanning(ficDat.iloc[0]['scanvolts'])
+    startFrame = ficDat.iloc[0]['cnt']
 
     for i in range(length):
-        curState = isScanning(ficData.iloc[i]['scanvolts'])
+        curState = isScanning(ficDat.iloc[i]['scanvolts'])
         
         if (curState != prevState):
-            curFrame = ficData.iloc[i]['cnt']
+            curFrame = ficDat.iloc[i]['cnt']
             frameLength = curFrame - startFrame
             scanArray = np.append(scanArray, {'frameStart':startFrame, 
                                               'frameEnd':curFrame,
@@ -86,7 +86,7 @@ def getFullScanPeriods(scanArray):
                                                 'frameEnd': scanArray[i+5]['frameEnd'],
                                                 'frameLength': scanArray[i+5]['frameEnd'] - scanArray[i]['frameEnd']})
 
-        i += 2 ## Move to next
+        i += 2 ## Move to next scan break
     return fullScans
 
 def findScanPeriod(fullScans, frame):
@@ -107,3 +107,14 @@ def findScanPeriod(fullScans, frame):
             return [prevScan, scan]
 
         prevScan = scan
+
+def getScanData(scanList, ficDat):
+    """
+    Given a sequential list of scan periods
+    Return the section of the fictrac dataframe that contains the scans
+    """
+
+    startFrame = int(scanList[0]['frameStart'])
+    endFrame = int(scanList[-1]['frameEnd'])
+
+    return ficDat.loc[ficDat['cnt'].isin(range(startFrame, endFrame+1))]
